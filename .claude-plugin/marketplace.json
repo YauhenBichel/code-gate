@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "code-gate",
+  "description": "Check the code a model writes before it is called done",
+  "owner": {
+    "name": "Yauhen Bichel"
+  },
+  "plugins": [
+    {
+      "name": "code-gate",
+      "description": "Static checks on every edited file, and a local model for design, data-structure and algorithm review.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

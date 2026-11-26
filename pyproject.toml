@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# The name on PyPI. The command, the import package and the Claude Code plugin are all `code-gate`.
+name = "code-gate-llm"
+dynamic = ["version"]
+description = "Check the code a model writes: security, algorithms, data structures, design, smells, non-functional practice"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Yauhen Bichel" }]
+dependencies = []
+keywords = ["claude", "claude-code", "llm", "code-review", "security", "mcp", "static-analysis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Security",
+]
+
+# TODO(owner): replace OWNER with the GitHub account once the repository exists (also in README.md and CHANGELOG.md).
+[project.urls]
+Homepage = "https://github.com/OWNER/code-gate"
+Repository = "https://github.com/OWNER/code-gate"
+Issues = "https://github.com/OWNER/code-gate/issues"
+Changelog = "https://github.com/OWNER/code-gate/blob/main/CHANGELOG.md"
+
+[project.scripts]
+code-gate = "code_gate.__main__:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "code_gate.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py39"

@@ -1,0 +1,17 @@
+{
+  "description": "Check each file Claude writes or edits, and ask for a fix when a serious problem is found",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/bin/code-gate\" hook",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

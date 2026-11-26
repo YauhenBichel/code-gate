@@ -1,0 +1,10 @@
+# The wheel holds only the `code_gate` package. The source archive also holds the Claude Code plugin and the tests.
+include LICENSE README.md CHANGELOG.md
+include bin/code-gate
+include hooks/hooks.json
+include .mcp.json
+recursive-include .claude-plugin *.json
+recursive-include commands *.md
+recursive-include tests *.py
+recursive-include tests/fixtures *
+global-exclude __pycache__ *.py[cod] .DS_Store .code-gate.json

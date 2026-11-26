@@ -1,0 +1,56 @@
+name: release
+
+# Publishes to PyPI when a tag like v0.1.0 is pushed. No token is stored: PyPI trusts this
+# workflow through Trusted Publishing (OIDC). The PyPI project must list this repository, this
+# file name (release.yml) and the environment name (pypi) as its trusted publisher.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: The tag must match the version in the package
+        run: |
+          version="$(python -c 'import sys; sys.path.insert(0, "src"); import code_gate; print(code_gate.__version__)')"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "tag $GITHUB_REF_NAME does not match version $version" >&2
+            exit 1
+          fi
+      - name: Tests
+        run: python -m unittest discover -s tests
+      - name: Build
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/p/code-gate-llm
+    permissions:
+      id-token: write # required for Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
