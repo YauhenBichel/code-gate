@@ -5,7 +5,6 @@ smells and non-functional practice (timeouts, error handling, resources, logging
 server and a Claude Code plugin with a hook. Python, TypeScript/JavaScript, Java and Go.
 Standard library only: it needs Python 3.9 or newer and nothing else.
 
-<!-- TODO(owner): replace OWNER in the links of this file with the GitHub account once the repository exists. -->
 
 ## Install
 
@@ -20,7 +19,7 @@ This gives you the command line and the MCP server. The Claude Code plugin (the 
 `/code-gate:review` command) is installed from a checkout of the repository, and needs no `pip install`:
 
 ```bash
-git clone https://github.com/OWNER/code-gate
+git clone https://github.com/YauhenBichel/code-gate
 claude plugin marketplace add ./code-gate
 claude plugin install code-gate@code-gate
 ```
@@ -156,5 +155,5 @@ python3 -m unittest discover -s tests     # no dependencies; Python 3.9 to 3.14
 python3 bin/code-gate check src           # code-gate on its own source
 ```
 
-Changes are listed in [CHANGELOG.md](https://github.com/OWNER/code-gate/blob/main/CHANGELOG.md).
-Licence: MIT, see [LICENSE](https://github.com/OWNER/code-gate/blob/main/LICENSE).
+Changes are listed in [CHANGELOG.md](https://github.com/YauhenBichel/code-gate/blob/main/CHANGELOG.md).
+Licence: MIT, see [LICENSE](https://github.com/YauhenBichel/code-gate/blob/main/LICENSE).

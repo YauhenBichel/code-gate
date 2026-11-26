@@ -31,12 +31,11 @@ classifiers = [
     "Topic :: Security",
 ]
 
-# TODO(owner): replace OWNER with the GitHub account once the repository exists (also in README.md and CHANGELOG.md).
 [project.urls]
-Homepage = "https://github.com/OWNER/code-gate"
-Repository = "https://github.com/OWNER/code-gate"
-Issues = "https://github.com/OWNER/code-gate/issues"
-Changelog = "https://github.com/OWNER/code-gate/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/YauhenBichel/code-gate"
+Repository = "https://github.com/YauhenBichel/code-gate"
+Issues = "https://github.com/YauhenBichel/code-gate/issues"
+Changelog = "https://github.com/YauhenBichel/code-gate/blob/main/CHANGELOG.md"
 
 [project.scripts]
 code-gate = "code_gate.__main__:main"
