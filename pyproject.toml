@@ -13,7 +13,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Yauhen Bichel" }]
 dependencies = []
-keywords = ["claude", "claude-code", "llm", "code-review", "security", "mcp", "static-analysis"]
+keywords = ["claude", "claude-code", "claude-code-plugin", "llm", "ai-generated-code", "code-review", "security", "mcp", "mcp-server", "static-analysis", "linter"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
