@@ -1,28 +1,65 @@
 # code-gate
 
-Checks the code a model writes before it is called done: security, algorithms, data structures, design, code
-smells and non-functional practice (timeouts, error handling, resources, logging). It is a command line, an MCP
-server and a Claude Code plugin with a hook. Python, TypeScript/JavaScript, Java and Go.
-Standard library only: it needs Python 3.9 or newer and nothing else.
+code-gate is a static code checker for AI-written code: a command line, an MCP server and a Claude Code plugin that find security holes, bad algorithms and missing timeouts or error handling in the code a model writes, before it is called done.
 
+![Terminal capture: code-gate check finds three high and two medium problems in a small Python file](docs/demo.svg)
 
-## Install
+It checks Python, TypeScript/JavaScript, Java and Go. Standard library only: it needs Python 3.9 or newer and
+nothing else.
 
-The package on PyPI is `code-gate-llm`. The command it installs is `code-gate`.
+The capture is real output on a small file with planted mistakes, `docs/demo/orders.py` (the key in it is made
+up). The same run as text:
 
-```bash
-uv tool install code-gate-llm        # or: pipx install code-gate-llm, or: pip install code-gate-llm
-code-gate --version
+```
+$ bin/code-gate check docs/demo/orders.py
+docs/demo/orders.py:7  high  security/hardcoded-secret  A secret is written in the source: value of `API_KEY`
+    fix: Read it from the environment or a secret store, and rotate the value
+docs/demo/orders.py:15  high  security/shell-injection  A shell command is built from values: `shell=True` with a built command
+    fix: Pass an argument list and no shell
+docs/demo/orders.py:19  high  security/unsafe-deserialisation  Untrusted data can run code when it is loaded: `pickle.loads`
+    fix: Use a data-only format (JSON, safe YAML loader)
+docs/demo/orders.py:11  medium  non-functional/no-timeout  A network call can wait for ever: `requests.get`
+    fix: Set a timeout
+docs/demo/orders.py:23  medium  security/weak-hash  MD5 or SHA-1 is used: `hashlib.md5`
+    fix: Use SHA-256, or a password hash (argon2, bcrypt) for passwords
+code-gate: 5 findings, 3 high
+$ echo $?
+1
 ```
 
-This gives you the command line and the MCP server. The Claude Code plugin (the hook on every edit and the
-`/code-gate:review` command) is installed from a checkout of the repository, and needs no `pip install`:
+Exit code `1` means a finding at or above `--fail-on` (default `high`). This is the fast static pass; no model
+or network is used.
+
+## Quick start
+
+The package is not on PyPI yet (`code-gate-llm` returns 404 there), so run it from a clone. This needs only Python
+3.9 or newer:
 
 ```bash
-git clone https://github.com/YauhenBichel/code-gate
+git clone https://github.com/YauhenBichel/code-gate && cd code-gate
+python3 bin/code-gate check docs/demo/orders.py     # the output above
+python3 bin/code-gate --version                     # code-gate 0.1.0
+```
+
+To get a `code-gate` command on your path, install from the clone (works today):
+
+```bash
+pip install .            # or: uv tool install .   or: pipx install .
+code-gate check src/
+```
+
+To use it inside Claude Code, add the plugin from the clone. It checks every file Claude edits and starts the MCP server:
+
+```bash
 claude plugin marketplace add ./code-gate
 claude plugin install code-gate@code-gate
 ```
+
+## When to use it, and when not
+
+Use it as a cheap first gate on code that a model wrote: it catches obvious mistakes in milliseconds and tells the
+model what to fix. Do not use it as your only check. It does not follow data across functions or files, and it is
+not a replacement for semgrep, a type checker or a human review (see Limits).
 
 ## What it does
 
@@ -49,16 +86,23 @@ skipped and listed as skipped. A file the parser cannot take is reported as not 
 
 ## MCP tools
 
-| Tool | What it does |
-| --- | --- |
-| `review_files` | check files on disk (`paths`, optional `deep`) |
-| `review_code` | check a snippet up to 400 KB (`code`, `language` or `filename`, optional `deep`) |
-| `list_rules` | the static rules with category and severity |
+| Tool | What it does | Read-only |
+| --- | --- | --- |
+| `review_files` | check files on disk (`paths`, optional `deep`) | yes: reads files, changes nothing |
+| `review_code` | check a snippet up to 400 KB (`code`, `language` or `filename`, optional `deep`) | yes |
+| `list_rules` | the static rules with category and severity | yes |
 
-The plugin starts the server by itself. For any other MCP client, after installing the package:
+The plugin starts the server by itself. For any other MCP client, after `pip install .` from a clone (or, once
+it is published, `pip install code-gate-llm`):
 
 ```bash
 claude mcp add code-gate -- code-gate mcp
+```
+
+Without installing, point the client at the clone:
+
+```bash
+claude mcp add code-gate -- python3 /path/to/code-gate/bin/code-gate mcp
 ```
 
 or, in `.mcp.json`, `.cursor/mcp.json` or the client's own server list:
@@ -147,6 +191,38 @@ bad value is left at its default and the checks run.
 - The hook checks the whole file, so an old problem in a file blocks a new edit to it until it is fixed or ignored.
 - It does not follow data across functions or files. It is a gate for obvious mistakes, not a replacement for
   semgrep, a type checker or a human review.
+
+## FAQ
+
+### How do I check code that Claude or another model wrote?
+
+Run `code-gate check <file or folder>`, or install the Claude Code plugin and let the hook check each edit. A
+`high` finding blocks the edit and tells the model what to fix.
+
+### Does it send my code anywhere?
+
+No. The static pass runs on your machine and makes no network calls. Only the optional deep pass (`--deep`)
+posts a file, to a model server on your own machine, with secrets and very long lines removed first. See The local model.
+
+### Do I need a GPU or an API key?
+
+No. The static checks need neither. The deep pass needs an OpenAI-compatible server you run yourself, and is off by default.
+
+### How do I silence a false alarm?
+
+Put `code-gate: ignore[rule]` in a comment on that line or the line above, or list the rule under `disable` in a
+project `.code-gate.json`.
+
+### How is it different from semgrep or bandit?
+
+Those are broader and have large community rule sets. code-gate is small (38 rules, no dependencies), covers
+design and non-functional mistakes as well as security, and is built to talk to a model: it runs as a hook on every
+edit and as an MCP server. It reads Python with `ast` and the other languages with heuristics, so it misses more
+than a full analyser. Use it beside them, not instead.
+
+### Which languages does it support?
+
+Python, TypeScript/JavaScript, Java and Go. Java and Go have the fewest rules.
 
 ## Development
 
