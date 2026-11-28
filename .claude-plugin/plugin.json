@@ -1,6 +1,6 @@
 {
   "name": "code-gate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Check the code a model writes: security, algorithms, data structures, design, code smells and non-functional practice. Static checks on every edit, a local model for a second opinion.",
   "author": {
     "name": "Yauhen Bichel"

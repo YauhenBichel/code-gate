@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.1
+
+No change in the checks. The version is raised so that Claude Code replaces a plugin copy installed before
+the 0.1.0 release: an update can keep a copy whose version number did not change, and that early copy
+still reported valid Python 3.10+ syntax (`match`, `int | None`) as a syntax error under Python 3.9 and
+blocked the edit. Since 0.1.0 such a file is reported as `newer-syntax` and does not block.
+
+Also since 0.1.0: CI runs Python 3.9 on ubuntu-24.04, and the README has a one-sentence summary, a demo,
+a quick start from a clone, an MCP table and a FAQ.
+
 ## 0.1.0
 
 First public version: a command line (`code-gate check`, `rules`, `hook`, `mcp`), an MCP server with three
